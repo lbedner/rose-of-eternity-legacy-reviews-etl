@@ -1,0 +1,5 @@
+[settings]
+URLS=url1,url2
+
+LOG_FILE=etl.log
+LOG_LEVEL=INFO

@@ -1,11 +1,14 @@
+|CI badge|
 ###################################
 Rose Of Eterity Legacy Reviews ETL
 ###################################
 
-ETL that:
+ETL process for legacy Rose of Eternity reviews archived on wayback machine.
+
+Steps:
 
 - downloads review HTML pages
-- parses out data (user name, score, comments, and posted on date)
+- scrapes out data (user name, score, comments, and posted on date)
 - cleans data
 - saves data as CSV
 - loads data into database
@@ -29,7 +32,13 @@ Before the first run of the app::
     $ pip-compile --upgrade requirements.in
     $ python -m pip install -r dev-requirements.txt
 
+Running the app::
+
+    $ python -m etl.etl
+
 
 .. _virtualenvs: https://virtualenv.pypa.io/
 .. _pip: https://pip.pypa.io/
 .. _pip-tools: https://github.com/nvie/pip-tools/
+.. |CI badge| image:: https://github.com/lbedner/rose-of-eternity-legacy-reviews-etl/actions/workflows/tox.yml/badge.svg
+    :target: https://github.com/lbedner/rose-of-eternity-legacy-reviews-etl/actions/workflows/tox.yml
