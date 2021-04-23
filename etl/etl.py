@@ -1,8 +1,10 @@
 """ETL for legacy Rose of Eternity reviews archived on wayback machine."""
 
+from dateutil import parser
 import logging
 from typing import Optional
 
+from bs4 import BeautifulSoup
 import requests
 
 from . import settings
@@ -20,7 +22,7 @@ logger.addHandler(handler)
 logger.setLevel(settings.LOG_LEVEL)
 
 
-def download_review(url: str) -> Optional[str]:
+def download_review_page(url: str) -> Optional[str]:
     """Download and returns a HTML page representing the review.
 
     Args:
@@ -40,6 +42,68 @@ def download_review(url: str) -> Optional[str]:
     return None
 
 
+def scrape_review_page(review_page: str) -> list[dict]:
+    """Scrape the review page and return all the reviews.
+
+    Args:
+        review_page: HTML representation of the review.
+
+    Returns:
+        Reviews.
+    """
+    reviews: list[dict] = []
+
+    soup: BeautifulSoup = BeautifulSoup(review_page, 'html.parser')
+    table: BeautifulSoup = soup.body.center.table
+    rows: list = table.find_all('tr')
+
+    for row in rows:
+        columns: list = row.find_all('td')
+        if columns:
+
+            # User Data
+            user_data_column: BeautifulSoup = columns[0]
+            user_id = user_data_column.a.attrs['href'].split('id')[1].replace(
+                '=',
+                ''
+            )
+            user_name = user_data_column.find('a', href=True).text
+
+            # Review Score
+            review_score: float = columns[1].text
+
+            # Review
+            content: str = columns[2].text
+
+            # Review Date
+            review_date: str = parser.parse(
+                columns[3].text
+            ).strftime('%Y-%m-%d')
+
+            review = {
+                'user_id': user_id,
+                'user_name': user_name,
+                'score': review_score,
+                'content': content,
+                'date': review_date,
+            }
+            reviews.append(review)
+
+    logger.info(f'Scraped {len(reviews)} Reviews!')
+
+    # Reverse list so that the reviews at the bottom of the page
+    # (which are the earliest) are at the beginning of the list
+    reviews.reverse()
+    return reviews
+
+
 if __name__ == '__main__':
+
     for url in settings.URLS:
-        review: Optional[str] = download_review(url)
+
+        # Download and store reviews (HTML)
+        review_page: Optional[str] = download_review_page(url)
+
+        # Scrape the review page for reviews
+        if review_page:
+            reviews: list[dict] = scrape_review_page(review_page)
