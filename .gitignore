@@ -110,3 +110,6 @@ flycheck_*.el
 
 # IDEs
 .vscode/
+
+# Output folders
+output/

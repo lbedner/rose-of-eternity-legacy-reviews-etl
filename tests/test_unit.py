@@ -1,8 +1,16 @@
 """Unit tests."""
 
+import os
+from unittest.mock import patch, mock_open
+
 import pytest
 
-from etl.etl import download_review_page, scrape_review_page
+from etl.etl import (
+    download_review_page,
+    scrape_review_page,
+    write_reviews_to_csv,
+)
+from etl import settings
 
 REVIEW_PAGE_GOOD = """
 <body>
@@ -27,6 +35,23 @@ REVIEW_PAGE_GOOD = """
 		</table>
 """
 
+REVIEWS = [
+    {
+        'user_id': '90838',
+        'user_name': 'RapidDeployment',
+        'score': '10.00',
+        'content': 'Review 1',
+        'date': '2006-10-12',
+    },
+    {
+        'user_id': '27320',
+        'user_name': 'pokstair',
+        'score': '10.00',
+        'content': 'Review 2',
+        'date': '2006-10-13',
+    },
+]
+
 @pytest.mark.parametrize('response_mock', [
     {'text': 'response', 'status_code': 200},
     {'text': None, 'status_code': 404},
@@ -39,20 +64,13 @@ def test_download_review(requests_mock, response_mock):
 
 def test_scrape_review_page():
     reviews: list[dict] = scrape_review_page(REVIEW_PAGE_GOOD)
-    print(reviews)
     assert reviews
     assert len(reviews) == 2
-    assert reviews[0] == {
-        'user_id': '90838',
-        'user_name': 'RapidDeployment',
-        'score': '10.00',
-        'content': 'Review 1',
-        'date': '2006-10-12',
-    }
-    assert reviews[1] == {
-        'user_id': '27320',
-        'user_name': 'pokstair',
-        'score': '10.00',
-        'content': 'Review 2',
-        'date': '2006-10-13',
-    }
+    assert reviews[0] == REVIEWS[0]
+    assert reviews[1] == REVIEWS[1]
+
+
+@patch("builtins.open", new_callable=mock_open())
+def test_write_reviews_to_csv(mock_open):
+    csv_filename = write_reviews_to_csv('foo.html', REVIEWS)
+    assert csv_filename == os.path.join(settings.REVIEWS_OUTPUT_FOLDER, 'foo.csv')
