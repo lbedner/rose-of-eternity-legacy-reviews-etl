@@ -1,7 +1,9 @@
 """ETL for legacy Rose of Eternity reviews archived on wayback machine."""
 
+import csv
 from dateutil import parser
 import logging
+import os
 from typing import Optional
 
 from bs4 import BeautifulSoup
@@ -97,6 +99,34 @@ def scrape_review_page(review_page: str) -> list[dict]:
     return reviews
 
 
+def write_reviews_to_csv(url: str, reviews: list[dict]) -> Optional[str]:
+    """Write reviews to CSV file.
+
+    Args:
+        url: Wayback machine URL.
+        reviews: Scaped reviews.
+
+    Returns:
+        Name of CSV file.
+    """
+    # Create CSV filename based off of Wayback Machine URL
+    # and output directory
+    csv_filename: str = os.path.basename(url).replace('html', 'csv')
+    csv_filename = os.path.join(settings.REVIEWS_OUTPUT_FOLDER, csv_filename)
+
+    # Write CSV file
+    logger.info(f'Writing {csv_filename}')
+    with open(csv_filename, 'w', newline='') as output_file:
+        dict_writer: csv.DictWriter = csv.DictWriter(
+            output_file,
+            fieldnames=reviews[0].keys(),
+        )
+        dict_writer.writeheader()
+        dict_writer.writerows(reviews)
+        return csv_filename
+    return None
+
+
 if __name__ == '__main__':
 
     for url in settings.URLS:
@@ -107,3 +137,6 @@ if __name__ == '__main__':
         # Scrape the review page for reviews
         if review_page:
             reviews: list[dict] = scrape_review_page(review_page)
+
+            # Export reviews to CSV file
+            csv_filename: Optional[str] = write_reviews_to_csv(url, reviews)

@@ -1,5 +1,7 @@
 [settings]
 URLS=url1,url2
 
+REVIEWS_OUTPUT_FOLDER=./output/reviews
+
 LOG_FILE=etl.log
 LOG_LEVEL=INFO
