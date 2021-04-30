@@ -11,3 +11,6 @@ REVIEWS_OUTPUT_FOLDER = config(
 
 LOG_FILE = config('LOG_FILE', default=None)
 LOG_LEVEL = config('LOG_LEVEL', default='INFO')
+
+DATABASE_URI = config('DATABASE_URI')
+REVIEW_TABLE = config('REVIEW_TABLE', default='review')

@@ -5,3 +5,6 @@ REVIEWS_OUTPUT_FOLDER=./output/reviews
 
 LOG_FILE=etl.log
 LOG_LEVEL=INFO
+
+DATABASE_URI=postgresql://postgres:postgres@localhost/postgres
+REVIEW_TABLE=review
