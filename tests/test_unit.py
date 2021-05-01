@@ -8,7 +8,7 @@ import pytest
 from etl.etl import (
     download_review_page,
     scrape_review_page,
-    write_reviews_to_csv,
+    write_reviews_to_tsv,
 )
 from etl import settings
 
@@ -71,6 +71,6 @@ def test_scrape_review_page():
 
 
 @patch("builtins.open", new_callable=mock_open())
-def test_write_reviews_to_csv(mock_open):
-    csv_filename = write_reviews_to_csv('foo.html', REVIEWS)
-    assert csv_filename == os.path.join(settings.REVIEWS_OUTPUT_FOLDER, 'foo.csv')
+def test_write_reviews_to_tsv(mock_open):
+    tsv_filename = write_reviews_to_tsv('foo.html', REVIEWS)
+    assert tsv_filename == os.path.join(settings.REVIEWS_OUTPUT_FOLDER, 'foo.tsv')
