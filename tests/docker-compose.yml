@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13.2-alpine
+    ports:
+        - 5961:5432 # Start on a fake port to avoid collisions
+    environment:
+        POSTGRES_PASSWORD: postgres
